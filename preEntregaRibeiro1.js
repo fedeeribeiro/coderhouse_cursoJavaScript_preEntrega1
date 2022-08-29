@@ -123,6 +123,16 @@ function repetido(carrito, show){
     return carrito.some(pedido => show == pedido.show);
 }
 
+// Función para ver el carrito de compras
+function ver_carrito(carrito_de_compras){
+    pedido_final = "Tu carrito se compone de:" + "\n";
+    for(let pedido of carrito_de_compras){
+        pedido_final += pedido.entradas.toString() + " entradas para el show de " + pedido.show + 
+        ". El total por estas entradas es de $" + pedido.precio + "." + "\n";
+    }
+    return pedido_final;
+}
+
 /* ---------------ENCIERRO EL CÓDIGO EN UN BUCLE while PARA QUE EL USUARIO PUEDA COMPRAR TODAS LAS VECES QUE QUIERA--------------- */
 
 let seguir_comprando = false;
@@ -235,15 +245,8 @@ while(seguir_comprando){
 
 if(carrito_de_compras.length != 0){
     // Vista final del carrito de compras
-    let pedido_final = "Tu carrito se compone de:" + "\n";
-
-    for(let pedido of carrito_de_compras){
-        pedido_final += pedido.entradas.toString() + " entradas para el show de " + pedido.show + 
-        ". El total por estas entradas es de $" + pedido.precio + "." + "\n";
-    }
-
-    alert(pedido_final);
-    console.log(pedido_final);
+    alert(ver_carrito(carrito_de_compras));
+    console.log(ver_carrito(carrito_de_compras));
 
     // Pregunto al usuario si desea eliminar elementos del carrito de compras
     let eliminar_del_carrito = prompt("Si desea eliminar entradas del carrito ingrese la letra 'S'." + "\n" +
@@ -304,15 +307,8 @@ if(carrito_de_compras.length != 0){
     }
 
     if(carrito_de_compras.length != 0){
-        pedido_final = "Tu carrito se compone de:" + "\n";
-
-        for(let pedido of carrito_de_compras){
-            pedido_final += pedido.entradas.toString() + " entradas para el show de " + pedido.show + 
-            ". El total por estas entradas es de $" + pedido.precio + "." + "\n";
-        }
-    
-        alert(pedido_final);
-        console.log(pedido_final);
+        alert(ver_carrito(carrito_de_compras));
+        console.log(ver_carrito(carrito_de_compras));
 
         let precio_total = carrito_de_compras.reduce((acumulador, pedido) => acumulador + pedido.precio, 0);
 
