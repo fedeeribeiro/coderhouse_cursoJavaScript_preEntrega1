@@ -304,6 +304,8 @@ if(carrito_de_compras.length != 0){
     }
 
     if(carrito_de_compras.length != 0){
+        pedido_final = "Tu carrito se compone de:" + "\n";
+
         for(let pedido of carrito_de_compras){
             pedido_final += pedido.entradas.toString() + " entradas para el show de " + pedido.show + 
             ". El total por estas entradas es de $" + pedido.precio + "." + "\n";
