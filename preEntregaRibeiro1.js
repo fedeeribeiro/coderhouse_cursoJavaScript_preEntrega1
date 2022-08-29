@@ -118,6 +118,11 @@ class Pedido{
 // Creo array de carrito de compras
 let carrito_de_compras = [];
 
+// Función para ver si ya se hizo un pedido para un show
+function repetido(carrito, show){
+    return carrito.some(pedido => show == pedido.show);
+}
+
 /* ---------------ENCIERRO EL CÓDIGO EN UN BUCLE while PARA QUE EL USUARIO PUEDA COMPRAR TODAS LAS VECES QUE QUIERA--------------- */
 
 let seguir_comprando = false;
@@ -203,7 +208,20 @@ while(seguir_comprando){
         respuesta_final = prompt("Si desea seguir comprando entradas ingrese la letra 'S'." + "\n" + 
         "De lo contrario, se pasará al carrito para terminar con la compra.").toLowerCase();
         
-        carrito_de_compras.push(new Pedido(seleccionar_show, cant_entradas, precio_entradas(cant_entradas, precio_show)));
+        if(carrito_de_compras.length != 0){
+            if(repetido(carrito_de_compras, seleccionar_show)){
+                for(let pedido of carrito_de_compras){
+                    if(pedido.show == seleccionar_show){
+                        pedido.entradas += cant_entradas;
+                        pedido.precio += precio_entradas(cant_entradas, precio_show);
+                    }
+                }
+            }else{
+                carrito_de_compras.push(new Pedido(seleccionar_show, cant_entradas, precio_entradas(cant_entradas, precio_show)));
+            }
+        }else{
+            carrito_de_compras.push(new Pedido(seleccionar_show, cant_entradas, precio_entradas(cant_entradas, precio_show)));
+        }
         
         if(respuesta_final != "s"){
             seguir_comprando = false;
@@ -212,60 +230,128 @@ while(seguir_comprando){
         }
     }
 }
+
 /* ---------------                              FIN DEL BUCLE while PRINCIPAL                              --------------- */
 
 if(carrito_de_compras.length != 0){
     // Vista final del carrito de compras
     let pedido_final = "Tu carrito se compone de:" + "\n";
 
-    let precio_total = 0;
-
     for(let pedido of carrito_de_compras){
         pedido_final += pedido.entradas.toString() + " entradas para el show de " + pedido.show + 
         ". El total por estas entradas es de $" + pedido.precio + "." + "\n";
-        precio_total += pedido.precio;
     }
 
     alert(pedido_final);
     console.log(pedido_final);
 
-    alert("El precio total de tu pedido es de $" + precio_total + ".");
-    console.log("El precio total de tu pedido es de $" + precio_total + ".");
-
-    // Se pasa a abonar la compra
-    let modo_de_pago = "";
-
-    let cuotas = 0;
-
-    alert("Se puede abonar la compra al contado o en cuotas. Si se abona en cuotas, se efectúa un recargo.");
-    console.log("Se puede abonar la compra al contado o en cuotas. Si se abona en cuotas, se efectúa un recargo.");
-
-    modo_de_pago = prompt("¿Cómo desea abonar?." + "\n" + "Cuotas" + "\n" + "Al contado").toLowerCase();
-
-    while(modo_de_pago != "cuotas" && modo_de_pago != "al contado"){
-        alert("ERROR. Seleccione un modo de pago válido.");
-        console.log("ERROR. Seleccione un modo de pago válido.");
-        modo_de_pago = prompt("¿Cómo desea abonar?." + "\n" + "Cuotas" + "\n" + "Al contado").toLowerCase();
-    }
-
-    if(modo_de_pago == "cuotas"){
-        cuotas = parseInt(prompt("Seleccione la cantidad de cuotas que desea. Pueden ser 3, 6 o 12."));
-        while(cuotas != 3 && cuotas != 6 && cuotas != 12){
-            alert("ERROR. Seleccione una cantidad de cuotas válida.");
-            console.log("ERROR. Seleccione una cantidad de cuotas válida");
-            cuotas = parseInt(prompt("Seleccione la cantidad de cuotas que desea. Pueden ser 3, 6 o 12."));
+    // Pregunto al usuario si desea eliminar elementos del carrito de compras
+    let eliminar_del_carrito = prompt("Si desea eliminar entradas del carrito ingrese la letra 'S'." + "\n" +
+    "De lo contrario, se procederá con el pago.").toLowerCase();
+    
+    // Pregunto al usuario si quiere elimnar solo algunas entradas o todas las entradas para un show
+    while(eliminar_del_carrito == "s" && carrito_de_compras.length != 0){
+        let shows_carrito = carrito_de_compras.map(pedido => pedido.show);
+        let show_a_eliminar = prompt("¿Para que show desea eliminar entradas?" + "\n" + shows_carrito.join("\n")).toUpperCase();
+        while(shows_carrito.includes(show_a_eliminar) != true){
+            alert("ERROR. Seleccione un show válido.");
+            console.log("ERROR. Seleccione un show válido.");
+            show_a_eliminar = prompt("¿Para que show desea eliminar entradas?" + "\n" + shows_carrito.join("\n")).toUpperCase();
         }
-        alert("El precio final a pagar es $" + pago_en_cuotas(precio_total, cuotas).toFixed(2) + ".");
-        console.log("El precio final a pagar es $" + pago_en_cuotas(precio_total, cuotas).toFixed(2) + ".");
-    }else{
-        alert("El precio final a pagar es $" + precio_total + ".");
-        console.log("El precio final a pagar es $" + precio_total + ".");
+        let cuantos_elimina = prompt("¿Desea eliminar algunas o todas las entradas de este show del carrito?" + "\n" + "Algunas" + "\n" +
+        "Todas").toUpperCase();
+        while(cuantos_elimina != "TODAS" && cuantos_elimina != "ALGUNAS"){
+            alert("ERROR. Seleccione una opción válida.");
+            console.log("ERROR. Seleccione una opción válida.");
+            cuantos_elimina = prompt("¿Desea eliminar algunas o todas las entradas de este show del carrito?" + "\n" + "Algunas" + "\n" +
+            "Todas").toUpperCase();
+        }
+        if(cuantos_elimina == "TODAS"){
+            carrito_de_compras = carrito_de_compras.filter(pedido => pedido.show != show_a_eliminar);
+            alert("Se han eliminado del carrito todas las entradas para el show de " + show_a_eliminar + ".");
+            console.log("Se han eliminado del carrito todas las entradas para el show de " + show_a_eliminar + ".");
+        }else{
+            let entradas_en_carrito = (carrito_de_compras.filter(pedido => pedido.show == show_a_eliminar))[0].entradas;
+            let entradas_a_eliminar = parseInt(prompt("¿Cuántas entradas desea eliminar para este show?"));
+            while(entradas_a_eliminar > entradas_en_carrito || entradas_a_eliminar != entradas_a_eliminar || entradas_a_eliminar < 1){
+                alert("ERROR. Seleccione un valor entre 1 y " + entradas_en_carrito + ".");
+                console.log("ERROR. Seleccione un valor entre 1 y " + entradas_en_carrito + ".");
+                entradas_a_eliminar = parseInt(prompt("¿Cuántas entradas desea eliminar para este show?"));
+            }
+            for(let pedido of carrito_de_compras){
+                if(pedido.show == show_a_eliminar){
+                    pedido.entradas -= entradas_a_eliminar;
+                    pedido.precio -= (pedido.precio / entradas_en_carrito) * entradas_a_eliminar;
+                }
+            }
+            if(entradas_a_eliminar != 1){
+                alert("Se han eliminado del carrito " + entradas_a_eliminar + " entradas para el show de " + show_a_eliminar + ".");
+                console.log("Se han eliminado del carrito " + entradas_a_eliminar + " entradas para el show de " + show_a_eliminar + ".");
+            }else{
+                alert("Se ha eliminado del carrito " + entradas_a_eliminar + " entrada para el show de " + show_a_eliminar + ".");
+                console.log("Se ha eliminado del carrito " + entradas_a_eliminar + " entrada para el show de " + show_a_eliminar + ".");
+            }
+        }
+        carrito_de_compras = carrito_de_compras.filter(pedido => pedido.entradas != 0);
+        if(carrito_de_compras.length == 0){
+            alert("El carrito ha quedado vacío.");
+            console.log("El carrito ha quedado vacío.");
+        }
+        if(carrito_de_compras.length != 0){
+            eliminar_del_carrito = prompt("Si desea seguir eliminando entradas del carrito ingrese la letra 'S'." + "\n" +
+            "De lo contrario, se procederá con el pago.").toLowerCase(); 
+        }
     }
 
-    pago_con_tarjeta();
+    if(carrito_de_compras.length != 0){
+        for(let pedido of carrito_de_compras){
+            pedido_final += pedido.entradas.toString() + " entradas para el show de " + pedido.show + 
+            ". El total por estas entradas es de $" + pedido.precio + "." + "\n";
+        }
+    
+        alert(pedido_final);
+        console.log(pedido_final);
 
-    alert("El pago se ha realizado correctamente." + "\n" + "¡Disfrutá de tus entradas!");
-    console.log("El pago se ha realizado correctamente." + "\n" + "¡Disfrutá de tus entradas!");
+        let precio_total = carrito_de_compras.reduce((acumulador, pedido) => acumulador + pedido.precio, 0);
+
+        alert("El precio total de tu pedido es de $" + precio_total + ".");
+        console.log("El precio total de tu pedido es de $" + precio_total + ".");
+
+        // Se pasa a abonar la compra
+        let modo_de_pago = "";
+
+        let cuotas = 0;
+
+        alert("Se puede abonar la compra al contado o en cuotas. Si se abona en cuotas, se efectúa un recargo.");
+        console.log("Se puede abonar la compra al contado o en cuotas. Si se abona en cuotas, se efectúa un recargo.");
+
+        modo_de_pago = prompt("¿Cómo desea abonar?." + "\n" + "Cuotas" + "\n" + "Al contado").toLowerCase();
+
+        while(modo_de_pago != "cuotas" && modo_de_pago != "al contado"){
+            alert("ERROR. Seleccione un modo de pago válido.");
+            console.log("ERROR. Seleccione un modo de pago válido.");
+            modo_de_pago = prompt("¿Cómo desea abonar?." + "\n" + "Cuotas" + "\n" + "Al contado").toLowerCase();
+        }
+
+        if(modo_de_pago == "cuotas"){
+            cuotas = parseInt(prompt("Seleccione la cantidad de cuotas que desea. Pueden ser 3, 6 o 12."));
+            while(cuotas != 3 && cuotas != 6 && cuotas != 12){
+                alert("ERROR. Seleccione una cantidad de cuotas válida.");
+                console.log("ERROR. Seleccione una cantidad de cuotas válida");
+                cuotas = parseInt(prompt("Seleccione la cantidad de cuotas que desea. Pueden ser 3, 6 o 12."));
+            }
+            alert("El precio final a pagar es $" + pago_en_cuotas(precio_total, cuotas).toFixed(2) + ".");
+            console.log("El precio final a pagar es $" + pago_en_cuotas(precio_total, cuotas).toFixed(2) + ".");
+        }else{
+            alert("El precio final a pagar es $" + precio_total + ".");
+            console.log("El precio final a pagar es $" + precio_total + ".");
+        }
+
+        pago_con_tarjeta();
+
+        alert("El pago se ha realizado correctamente." + "\n" + "¡Disfrutá de tus entradas!");
+        console.log("El pago se ha realizado correctamente." + "\n" + "¡Disfrutá de tus entradas!");
+    }
 }
 
 alert("¡Que tengas un buen día!");
